@@ -18,7 +18,7 @@ At Thales eSecurity we have helped design the Tendermint `PrivValidator` interfa
 
 Our implementation protects the private key within our HSM security model and  ensures that votes and proposals cannot be double-signed (by preventing height regressions).
 
-The complete implementation includes the Go code presented in this project, plus an accompanying CodeSafe machine that runs within the nShield HSM. The CodeSafe machine ensures the private keys are only used if the consensus is executed correctly.
+The complete implementation includes the Go code presented in this project, plus an accompanying [CodeSafe machine](https://github.com/thales-e-security/tendermint-codesafe) that runs within the nShield HSM. The CodeSafe machine ensures the private keys are only used if the consensus is executed correctly.
 
 ## To learn more
 
