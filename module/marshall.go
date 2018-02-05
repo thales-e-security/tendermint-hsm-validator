@@ -35,7 +35,7 @@ const (
 	seeJobResponse_OK              = iota
 	seeJobResponse_Error           = iota
 	seeJobResponse_ProcessingError = iota
-	WordSize                       = 4
+	wordSize                       = 4
 )
 
 // marshallAll marshalls all items and returns a buffer. Supported
@@ -146,7 +146,7 @@ func marshallBytes(b []byte, out io.Writer) error {
 // getPaddingForLength calculates the amount of padding required
 // to align with the word boundary.
 func getPaddingForLength(length int) int {
-	return (WordSize - (length % WordSize)) % WordSize
+	return (wordSize - (length % wordSize)) % wordSize
 }
 
 // unmarshallBytes reads a slice from the input data.

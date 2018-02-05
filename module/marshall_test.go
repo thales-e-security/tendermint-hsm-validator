@@ -63,14 +63,14 @@ func TestMarshallBytesPadding(t *testing.T) {
 
 	err := marshallBytes(threeBytes, buffer)
 	require.Nil(t, err, err)
-	require.Equal(t, 2*WordSize, buffer.Len())
+	require.Equal(t, 2*wordSize, buffer.Len())
 
 	fourBytes := []byte{1, 2, 3, 4}
 	buffer.Reset()
 
 	err = marshallBytes(fourBytes, buffer)
 	require.Nil(t, err, err)
-	require.Equal(t, 2*WordSize, buffer.Len())
+	require.Equal(t, 2*wordSize, buffer.Len())
 }
 
 func TestMarshallString(t *testing.T) {
