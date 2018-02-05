@@ -100,7 +100,7 @@ func (h ThalesHSM) GenerateKey() (validator.Ed25519KeyPair, error) {
 // within the HSM. This operation will fail if there is a regression in round, step or height.
 func (h ThalesHSM) SignVote(chainId string, vote *types.Vote) ([]byte, error) {
 	buffer, err := MarshallAll(chainId, []byte(vote.BlockID.Hash), []byte(vote.BlockID.PartsHeader.Hash),
-		vote.BlockID.PartsHeader.Total, vote.Height, vote.Round, vote.Type)
+		vote.BlockID.PartsHeader.Total, vote.Height, vote.Round, types.CanonicalTime(vote.Timestamp), vote.Type)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,8 @@ func (h ThalesHSM) SignProposal(chainId string, proposal *types.Proposal) ([]byt
 	}
 
 	buffer, err := MarshallAll(chainId, []byte(proposal.BlockPartsHeader.Hash), proposal.BlockPartsHeader.Total,
-		proposal.Height, polBlockIDHash, partsHash, partsTotal, proposal.POLRound, proposal.Round)
+		proposal.Height, polBlockIDHash, partsHash, partsTotal, proposal.POLRound, proposal.Round,
+		types.CanonicalTime(proposal.Timestamp))
 	if err != nil {
 		return nil, err
 	}

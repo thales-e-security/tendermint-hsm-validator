@@ -55,6 +55,8 @@ func MarshallAll(items ...interface{}) (io.Reader, error) {
 			err = MarshallInt(int32(i), buffer)
 		case uint8:
 			err = MarshallInt(int32(i), buffer)
+		case int64:
+			err = MarshallInt64(i, buffer)
 		case string:
 			err = MarshallString(i, buffer)
 		default:
@@ -101,6 +103,11 @@ func UnmarshallInt(in io.Reader) (int32, error) {
 
 // MarshallInt writes an int32 to the output buffer.
 func MarshallInt(i int32, out io.Writer) error {
+	return binary.Write(out, binary.LittleEndian, i)
+}
+
+// MarshallInt64 writes an int64 to the output buffer.
+func MarshallInt64(i int64, out io.Writer) error {
 	return binary.Write(out, binary.LittleEndian, i)
 }
 

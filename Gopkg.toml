@@ -22,22 +22,9 @@
 
 
 [[constraint]]
-  name = "github.com/pkg/errors"
-  version = "0.8.0"
-
-[[constraint]]
-  name = "github.com/stretchr/testify"
-  version = "1.1.4"
-
-[[constraint]]
-  name = "github.com/tendermint/go-crypto"
-  version = "0.3.0"
-
-[[constraint]]
   name = "github.com/tendermint/tendermint"
-  version = "0.11.0"
+  version = "0.15.0"
 
 [[constraint]]
   name = "github.com/tendermint/tmlibs"
-  version = "0.3.2"
-
+  revision = "91b4b534ad78e442192c8175db92a06a51064064"
