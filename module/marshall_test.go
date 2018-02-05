@@ -36,10 +36,10 @@ func TestMarshallInt(t *testing.T) {
 func doTestInt(i int32, t *testing.T) {
 	buffer := new(bytes.Buffer)
 
-	err := MarshallInt(i, buffer)
+	err := marshallInt(i, buffer)
 	require.Nil(t, err, err)
 
-	result, err := UnmarshallInt(buffer)
+	result, err := unmarshallInt(buffer)
 	require.Nil(t, err, err)
 	require.Equal(t, i, result)
 }
@@ -48,11 +48,11 @@ func TestMarshallBytes(t *testing.T) {
 	someBytes := []byte("Hello, World!")
 	buffer := new(bytes.Buffer)
 
-	err := MarshallBytes(someBytes, buffer)
+	err := marshallBytes(someBytes, buffer)
 	require.Nil(t, err, err)
 	require.True(t, math.Mod(float64(buffer.Len()), 4) == 0, "Not a multiple of 4 bytes")
 
-	result, err := UnmarshallBytes(buffer)
+	result, err := unmarshallBytes(buffer)
 	require.Nil(t, err, err)
 	require.Equal(t, someBytes, result)
 }
@@ -61,14 +61,14 @@ func TestMarshallBytesPadding(t *testing.T) {
 	threeBytes := []byte{1, 2, 3}
 	buffer := new(bytes.Buffer)
 
-	err := MarshallBytes(threeBytes, buffer)
+	err := marshallBytes(threeBytes, buffer)
 	require.Nil(t, err, err)
 	require.Equal(t, 2*WordSize, buffer.Len())
 
 	fourBytes := []byte{1, 2, 3, 4}
 	buffer.Reset()
 
-	err = MarshallBytes(fourBytes, buffer)
+	err = marshallBytes(fourBytes, buffer)
 	require.Nil(t, err, err)
 	require.Equal(t, 2*WordSize, buffer.Len())
 }
@@ -77,10 +77,10 @@ func TestMarshallString(t *testing.T) {
 	someString := "Hello, World!"
 	buffer := new(bytes.Buffer)
 
-	err := MarshallString(someString, buffer)
+	err := marshallString(someString, buffer)
 	require.Nil(t, err, err)
 
-	result, err := UnmarshallString(buffer)
+	result, err := unmarshallString(buffer)
 	require.Nil(t, err, err)
 	require.Equal(t, someString, result)
 }
@@ -90,16 +90,16 @@ func TestMarshallAll(t *testing.T) {
 	i := int32(42)
 	s := "Hello, World!"
 
-	buffer, err := MarshallAll(b, i, s)
+	buffer, err := marshallAll(b, i, s)
 	require.Nil(t, err)
 
-	b2, err := UnmarshallBytes(buffer)
+	b2, err := unmarshallBytes(buffer)
 	require.Nil(t, err)
 
-	i2, err := UnmarshallInt(buffer)
+	i2, err := unmarshallInt(buffer)
 	require.Nil(t, err)
 
-	s2, err := UnmarshallString(buffer)
+	s2, err := unmarshallString(buffer)
 	require.Nil(t, err)
 
 	require.Equal(t, b, b2)
@@ -112,14 +112,14 @@ func TestMarshallUnmarshallAll(t *testing.T) {
 	i := int32(42)
 	s := "Hello, World!"
 
-	buffer, err := MarshallAll(b, i, s)
+	buffer, err := marshallAll(b, i, s)
 	require.Nil(t, err)
 
 	var b2 []byte
 	var i2 int32
 	var s2 string
 
-	err = UnmarshallAll(buffer, &b2, &i2, &s2)
+	err = unmarshallAll(buffer, &b2, &i2, &s2)
 	require.Nil(t, err)
 
 	require.Equal(t, b, b2)

@@ -27,13 +27,13 @@ import (
 	"net"
 )
 
-// SendJobToModule sends job data to the module. If the module responds with an error message, this is returned
+// sendJobToModule sends job data to the module. If the module responds with an error message, this is returned
 // in `error`, otherwise the job response is returned as a byte slice. Generally this response requires further
 /// unmarshalling (e.g. if it contains binary data)
-func SendJobToModule(jobNumber int32, marshalledData io.Reader, ipAddress string, portnumber int) ([]byte, error) {
+func sendJobToModule(jobNumber int32, marshalledData io.Reader, ipAddress string, portnumber int) ([]byte, error) {
 
 	buffer := new(bytes.Buffer)
-	err := MarshallInt(jobNumber, buffer)
+	err := marshallInt(jobNumber, buffer)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func SendJobToModule(jobNumber int32, marshalledData io.Reader, ipAddress string
 
 	// Note: this is not aligned to four bytes, as a marshalled byte array would be
 	bufferWithLength := new(bytes.Buffer)
-	err = MarshallInt(int32(buffer.Len()), bufferWithLength)
+	err = marshallInt(int32(buffer.Len()), bufferWithLength)
 	if err != nil {
 		return nil, err
 	}
@@ -74,5 +74,5 @@ func SendJobToModule(jobNumber int32, marshalledData io.Reader, ipAddress string
 		return nil, err
 	}
 
-	return UnmarshallModuleReponse(result)
+	return unmarshallModuleReponse(result)
 }

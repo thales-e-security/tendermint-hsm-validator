@@ -49,12 +49,12 @@ type ThalesHSM struct {
 // LoadKeys implements Hsm.LoadKeys by sending the encrypted key to the
 // HSM to be loaded.
 func (h ThalesHSM) LoadKeys(wrappedPrivKey []byte) error {
-	buffer, err := MarshallAll(wrappedPrivKey)
+	buffer, err := marshallAll(wrappedPrivKey)
 	if err != nil {
 		return err
 	}
 
-	_, err = SendJobToModule(seeJobKeyLoad, buffer, h.Host, h.Port)
+	_, err = sendJobToModule(seeJobKeyLoad, buffer, h.Host, h.Port)
 	return err
 }
 
@@ -65,7 +65,7 @@ func (h ThalesHSM) GenerateKey() (validator.Ed25519KeyPair, error) {
 	response := validator.Ed25519KeyPair{}
 	buffer := new(bytes.Buffer)
 
-	result, err := SendJobToModule(seeJobKeyGen, buffer, h.Host, h.Port)
+	result, err := sendJobToModule(seeJobKeyGen, buffer, h.Host, h.Port)
 	if err != nil {
 		return response, err
 	}
@@ -74,7 +74,7 @@ func (h ThalesHSM) GenerateKey() (validator.Ed25519KeyPair, error) {
 
 	var pubKey, privKey []byte
 
-	err = UnmarshallAll(buffer, &pubKey, &privKey)
+	err = unmarshallAll(buffer, &pubKey, &privKey)
 	if err != nil {
 		return response, err
 	}
@@ -99,19 +99,19 @@ func (h ThalesHSM) GenerateKey() (validator.Ed25519KeyPair, error) {
 // SignVote implements Hsm.SignVote by signing the canonical representation of the vote,
 // within the HSM. This operation will fail if there is a regression in round, step or height.
 func (h ThalesHSM) SignVote(chainId string, vote *types.Vote) ([]byte, error) {
-	buffer, err := MarshallAll(chainId, []byte(vote.BlockID.Hash), []byte(vote.BlockID.PartsHeader.Hash),
+	buffer, err := marshallAll(chainId, []byte(vote.BlockID.Hash), []byte(vote.BlockID.PartsHeader.Hash),
 		vote.BlockID.PartsHeader.Total, vote.Height, vote.Round, types.CanonicalTime(vote.Timestamp), vote.Type)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := SendJobToModule(seeJobSignVote, buffer, h.Host, h.Port)
+	result, err := sendJobToModule(seeJobSignVote, buffer, h.Host, h.Port)
 	if err != nil {
 		return nil, err
 	}
 
 	buffer = bytes.NewBuffer(result)
-	return UnmarshallBytes(buffer)
+	return unmarshallBytes(buffer)
 }
 
 // SignProposal implements Hsm.SignProposal by signing the canonical representation of the proposal,
@@ -131,36 +131,36 @@ func (h ThalesHSM) SignProposal(chainId string, proposal *types.Proposal) ([]byt
 		partsTotal = proposal.POLBlockID.PartsHeader.Total
 	}
 
-	buffer, err := MarshallAll(chainId, []byte(proposal.BlockPartsHeader.Hash), proposal.BlockPartsHeader.Total,
+	buffer, err := marshallAll(chainId, []byte(proposal.BlockPartsHeader.Hash), proposal.BlockPartsHeader.Total,
 		proposal.Height, polBlockIDHash, partsHash, partsTotal, proposal.POLRound, proposal.Round,
 		types.CanonicalTime(proposal.Timestamp))
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := SendJobToModule(seeJobSignProposal, buffer, h.Host, h.Port)
+	result, err := sendJobToModule(seeJobSignProposal, buffer, h.Host, h.Port)
 	if err != nil {
 		return nil, err
 	}
 
 	buffer = bytes.NewBuffer(result)
-	return UnmarshallBytes(buffer)
+	return unmarshallBytes(buffer)
 }
 
 // SignHeartbeat implements Hsm.SignHeartbeat by signing the canonical representation of the heartbeat,
 // within the HSM.
 func (h ThalesHSM) SignHeartbeat(chainId string, hb *types.Heartbeat) ([]byte, error) {
-	buffer, err := MarshallAll(chainId, hb.Height, hb.Round, hb.Sequence, []byte(hb.ValidatorAddress),
+	buffer, err := marshallAll(chainId, hb.Height, hb.Round, hb.Sequence, []byte(hb.ValidatorAddress),
 		hb.ValidatorIndex)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := SendJobToModule(seeJobSignHeartbeat, buffer, h.Host, h.Port)
+	result, err := sendJobToModule(seeJobSignHeartbeat, buffer, h.Host, h.Port)
 	if err != nil {
 		return nil, err
 	}
 
 	buffer = bytes.NewBuffer(result)
-	return UnmarshallBytes(buffer)
+	return unmarshallBytes(buffer)
 }

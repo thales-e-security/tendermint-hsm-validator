@@ -38,27 +38,27 @@ const (
 	WordSize                       = 4
 )
 
-// MarshallAll marshalls all items and returns a buffer. Supported
+// marshallAll marshalls all items and returns a buffer. Supported
 // types are []byte, int, int32, uint8 and string. All integer types
 // are treated as 32-bit values.
-func MarshallAll(items ...interface{}) (io.Reader, error) {
+func marshallAll(items ...interface{}) (io.Reader, error) {
 	buffer := new(bytes.Buffer)
 	var err error
 
 	for _, item := range items {
 		switch i := item.(type) {
 		case []byte:
-			err = MarshallBytes(i, buffer)
+			err = marshallBytes(i, buffer)
 		case int32:
-			err = MarshallInt(i, buffer)
+			err = marshallInt(i, buffer)
 		case int:
-			err = MarshallInt(int32(i), buffer)
+			err = marshallInt(int32(i), buffer)
 		case uint8:
-			err = MarshallInt(int32(i), buffer)
+			err = marshallInt(int32(i), buffer)
 		case int64:
-			err = MarshallInt64(i, buffer)
+			err = marshallInt64(i, buffer)
 		case string:
-			err = MarshallString(i, buffer)
+			err = marshallString(i, buffer)
 		default:
 			err = errors.Errorf("Unknown type: %s", reflect.TypeOf(item))
 		}
@@ -71,19 +71,19 @@ func MarshallAll(items ...interface{}) (io.Reader, error) {
 	return buffer, err
 }
 
-// UnmarshallAll will consume data from reader and unmarshall into the supplied
+// unmarshallAll will consume data from reader and unmarshall into the supplied
 // objects.
-func UnmarshallAll(reader io.Reader, destinations ...interface{}) error {
+func unmarshallAll(reader io.Reader, destinations ...interface{}) error {
 	var err error
 
 	for _, dest := range destinations {
 
 		if dp, ok := dest.(*[]byte); ok {
-			*dp, err = UnmarshallBytes(reader)
+			*dp, err = unmarshallBytes(reader)
 		} else if dp, ok := dest.(*int32); ok {
-			*dp, err = UnmarshallInt(reader)
+			*dp, err = unmarshallInt(reader)
 		} else if dp, ok := dest.(*string); ok {
-			*dp, err = UnmarshallString(reader)
+			*dp, err = unmarshallString(reader)
 		}
 
 		if err != nil {
@@ -94,37 +94,37 @@ func UnmarshallAll(reader io.Reader, destinations ...interface{}) error {
 	return err
 }
 
-// UnmarshallInt reads an int32 from the input data.
-func UnmarshallInt(in io.Reader) (int32, error) {
+// unmarshallInt reads an int32 from the input data.
+func unmarshallInt(in io.Reader) (int32, error) {
 	var result int32
 	err := binary.Read(in, binary.LittleEndian, &result)
 	return result, err
 }
 
-// MarshallInt writes an int32 to the output buffer.
-func MarshallInt(i int32, out io.Writer) error {
+// marshallInt writes an int32 to the output buffer.
+func marshallInt(i int32, out io.Writer) error {
 	return binary.Write(out, binary.LittleEndian, i)
 }
 
-// MarshallInt64 writes an int64 to the output buffer.
-func MarshallInt64(i int64, out io.Writer) error {
+// marshallInt64 writes an int64 to the output buffer.
+func marshallInt64(i int64, out io.Writer) error {
 	return binary.Write(out, binary.LittleEndian, i)
 }
 
-// MarshallString writes a string to the output buffer.
-func MarshallString(s string, out io.Writer) error {
-	return MarshallBytes(append([]byte(s), 0), out)
+// marshallString writes a string to the output buffer.
+func marshallString(s string, out io.Writer) error {
+	return marshallBytes(append([]byte(s), 0), out)
 }
 
-// UnmarshallString reads a string from the input data.
-func UnmarshallString(in io.Reader) (string, error) {
-	s, err := UnmarshallBytes(in)
+// unmarshallString reads a string from the input data.
+func unmarshallString(in io.Reader) (string, error) {
+	s, err := unmarshallBytes(in)
 	return string(s[:len(s)-1]), err
 }
 
-// MarshallBytes writes a slice to the output buffer.
-func MarshallBytes(b []byte, out io.Writer) error {
-	err := MarshallInt(int32(len(b)), out)
+// marshallBytes writes a slice to the output buffer.
+func marshallBytes(b []byte, out io.Writer) error {
+	err := marshallInt(int32(len(b)), out)
 	if err != nil {
 		return err
 	}
@@ -149,9 +149,9 @@ func getPaddingForLength(length int) int {
 	return (WordSize - (length % WordSize)) % WordSize
 }
 
-// UnmarshallBytes reads a slice from the input data.
-func UnmarshallBytes(in io.Reader) ([]byte, error) {
-	length, err := UnmarshallInt(in)
+// unmarshallBytes reads a slice from the input data.
+func unmarshallBytes(in io.Reader) ([]byte, error) {
+	length, err := unmarshallInt(in)
 	if err != nil {
 		return nil, err
 	}
@@ -168,10 +168,10 @@ func UnmarshallBytes(in io.Reader) ([]byte, error) {
 	return result, errors.Wrap(err, fmt.Sprintf("Failed to discard %d padding bytes", paddingToDiscard))
 }
 
-// UnmarshallModuleReponse unpicks the response from a module. If the response
+// unmarshallModuleReponse unpicks the response from a module. If the response
 // indicates an error then an appropriate error string is returned. Otherwise
 // the job response data is returned.
-func UnmarshallModuleReponse(in io.Reader) ([]byte, error) {
+func unmarshallModuleReponse(in io.Reader) ([]byte, error) {
 
 	// Skip the first four bytes, since they contain a redundant
 	// length indicator
@@ -180,27 +180,27 @@ func UnmarshallModuleReponse(in io.Reader) ([]byte, error) {
 		return nil, err
 	}
 
-	responseCode, err := UnmarshallInt(in)
+	responseCode, err := unmarshallInt(in)
 	if err != nil {
 		return nil, err
 	}
 
 	switch responseCode {
 	case seeJobResponse_OK:
-		return UnmarshallBytes(in)
+		return unmarshallBytes(in)
 	case seeJobResponse_Error:
-		errorString, err := UnmarshallString(in)
+		errorString, err := unmarshallString(in)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Failed to unmarshal error string")
 		}
 		return nil, errors.New("Error from module: " + errorString)
 
 	case seeJobResponse_ProcessingError:
-		errorString, err := UnmarshallString(in)
+		errorString, err := unmarshallString(in)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Failed to unmarshal error string")
 		}
-		errorCode, err := UnmarshallInt(in)
+		errorCode, err := unmarshallInt(in)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Failed to unmarshal error code")
 		}
